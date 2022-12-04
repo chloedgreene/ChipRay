@@ -35,6 +35,14 @@ impl cpu {
         }
     }
 
+    pub fn inject_codev(&mut self, code: Vec<u8>) {
+        let mut pindex: usize = 0;
+        for code_byte in code {
+            self.ram[0x200 + pindex] = code_byte.clone();
+            pindex = pindex + 1;
+        }
+    }
+
     pub fn inject_font(&mut self, pfont: [u8; 80]) {
         let mut findex: usize = 0;
         for font_byte in pfont.iter() {
@@ -46,6 +54,11 @@ impl cpu {
     pub fn init(&mut self, code: &[u8]) {
         self.inject_font(font::FONT_MEM);
         self.inject_code(code);
+    }
+
+    pub fn initv(&mut self, code: Vec<u8>) {
+        self.inject_font(font::FONT_MEM);
+        self.inject_codev(code);
     }
 
     pub fn step(&mut self) {
@@ -186,7 +199,7 @@ impl cpu {
                 }
             }
             (0x0e,_,0x0a,0x01) =>{
-                self.pc +=2;
+
             }
             (0x0f,_,0x02,0x09) => {
                 self.i = ((self.v[x]) * 5) as u16;

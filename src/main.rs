@@ -4,6 +4,11 @@ use macroquad::{
     window::{clear_background, next_frame, Conf}, text::draw_text, time::get_fps,
 };
 
+use std::{env, fs};
+use std::fs::File;
+use std::io::prelude::*;
+use std::process::exit;
+
 const WIN_SCALE: u8 = 12;
 
 const CPU_STEP_COUNT:i32 = 16;
@@ -11,6 +16,7 @@ const CPU_STEP_COUNT:i32 = 16;
 mod cpu;
 mod font;
 mod tests;
+mod input;
 
 fn window_conf() -> Conf {
     Conf {
@@ -25,13 +31,37 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
 
+    let args: Vec<String> = env::args().collect();
+
+    match args.len(){
+        1 =>{
+            println!("Please give path to rom in arguments");
+            exit(1)
+        }
+        2 =>{
+            //ok we just keep going
+        }
+        _ => {
+            println!("Please give only 1 argument as a argument");
+            exit(1)
+        }
+    }
+
+    let mut f = File::open(&args[1]).unwrap();
+    let metadata = fs::metadata(&args[1]).expect("unable to read metadata");
+    let mut buffer = vec![0; metadata.len() as usize];
+    f.read(&mut buffer).expect("buffer overflow");
+
 
     let mut cpu = cpu::cpu::new();
-    cpu.init(include_bytes!("../roms/maze.ch8"));
+    cpu.initv(buffer);
+
+    let mut inputmanager = input::input::new();
 
     loop {
         clear_background(BLACK);
 
+        inputmanager.update();
         for i in 0..CPU_STEP_COUNT{
             cpu.step();
         }
@@ -73,7 +103,25 @@ async fn main() {
             
         }
 
+        #[cfg(debug_assertions)]
+        {
 
+
+            for x in 0..4 {
+
+                for y in 0..4 {
+
+
+                    println!("{}",4*x+y);
+                    draw_rectangle(850. + (x * 12 )  as f32 + 1. ,50. + (y * 12 )  as f32 + 1.,11.,11.,WHITE)
+
+                }
+
+            }
+
+        }
+
+        inputmanager.reset();
         next_frame().await;
     }
 
