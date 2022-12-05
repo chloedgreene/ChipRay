@@ -86,29 +86,33 @@ impl cpu {
                 //Clear Screen
                 self.display = [[false; 64]; 32];
             }
-            (0x00,0x00,0x0e,0x0e) =>{
+            (0x00, 0x00, 0x0e, 0x0e) => {
                 self.pc = self.stack[self.sc as usize];
                 self.sc -= 1;
             }
-            (0x01,_,_,_) => { //Jump to NNN
+            (0x01, _, _, _) => {
+                //Jump to NNN
                 self.pc = nnn as u16;
             }
-            (0x02,_,_,_) => {
-                self.stack[self.sc as usize] = self.pc +2;
+            (0x02, _, _, _) => {
+                self.stack[self.sc as usize] = self.pc + 2;
                 self.sc += 1;
             }
-            (0x03,_,_,_) =>{ //Skip If VX=KK
-                if self.v[x] == kk{
+            (0x03, _, _, _) => {
+                //Skip If VX=KK
+                if self.v[x] == kk {
                     self.pc += 2;
                 }
             }
-            (0x04,_,_,_) =>{ //Skip If VX=KK
-                if self.v[x] != kk{
+            (0x04, _, _, _) => {
+                //Skip If VX=KK
+                if self.v[x] != kk {
                     self.pc += 2;
                 }
             }
-            (0x05,_,_,_) =>{ //Skip If VX=KK
-                if self.v[x] == self.v[y]{
+            (0x05, _, _, _) => {
+                //Skip If VX=KK
+                if self.v[x] == self.v[y] {
                     self.pc += 2;
                 }
             }
@@ -120,47 +124,35 @@ impl cpu {
                 //Add With No Carry VX
                 self.v[x] = self.v[x].wrapping_add(kk);
             }
-            (0x08,_,_,0x00) =>{
-                self.v[x] = self.v[y]
-            }
-            (0x08,_,_,0x01) =>{
-                self.v[x] |= self.v[y]
-            }
-            (0x08,_,_,0x02) =>{
-                self.v[x] &= self.v[y]
-            }
-            (0x08,_,_,0x03) =>{
-                self.v[x] ^= self.v[y]
-            }
-            (0x08,_,_,0x04) =>{
-            
+            (0x08, _, _, 0x00) => self.v[x] = self.v[y],
+            (0x08, _, _, 0x01) => self.v[x] |= self.v[y],
+            (0x08, _, _, 0x02) => self.v[x] &= self.v[y],
+            (0x08, _, _, 0x03) => self.v[x] ^= self.v[y],
+            (0x08, _, _, 0x04) => {
                 let vx = self.v[x] as u16;
                 let vy = self.v[y] as u16;
                 let result = vx + vy;
                 self.v[x] = result as u8;
                 self.v[0x0f] = if result > 0xFF { 1 } else { 0 };
-
             }
-            (0x08,_,_,0x05) =>{
+            (0x08, _, _, 0x05) => {
                 self.v[0x0f] = if self.v[x] > self.v[y] { 1 } else { 0 };
                 self.v[x] = self.v[x].wrapping_sub(self.v[y]);
             }
-            (0x08,_,_,0x06) =>{
+            (0x08, _, _, 0x06) => {
                 self.v[0x0f] = self.v[x] & 1;
                 self.v[x] >>= 1;
             }
-            (0x08,_,_,0x07) =>{
+            (0x08, _, _, 0x07) => {
                 self.v[0x0f] = if self.v[y] > self.v[x] { 1 } else { 0 };
                 self.v[x] = self.v[y].wrapping_sub(self.v[x]);
             }
-            (0x08,_,_,0x0e) =>{
-
+            (0x08, _, _, 0x0e) => {
                 self.v[0x0f] = (self.v[x] & 0b10000000) >> 7;
                 self.v[x] <<= 1;
-
             }
-            (0x09,_,_,0x00) =>{
-                if self.v[x] != self.v[y]{
+            (0x09, _, _, 0x00) => {
+                if self.v[x] != self.v[y] {
                     self.pc += 2;
                 }
             }
@@ -170,10 +162,10 @@ impl cpu {
             }
             (0x0b, _, _, _) => {
                 // Set Index Register I
-                self.pc = (nnn + self.v[0] as usize) as u16 ;
+                self.pc = (nnn + self.v[0] as usize) as u16;
             }
-            (0x0c,_,_,_) =>{
-                let g:u8 = rand::random();
+            (0x0c, _, _, _) => {
+                let g: u8 = rand::random();
                 let result = g & kk;
                 self.v[x] = result;
             }
@@ -198,40 +190,36 @@ impl cpu {
                     }
                 }
             }
-            (0x0e,_,0x0a,0x01) =>{
-
-            }
-            (0x0f,_,0x02,0x09) => {
+            (0x0e, _, 0x0a, 0x01) => {}
+            (0x0f, _, 0x02, 0x09) => {
                 self.i = ((self.v[x]) * 5) as u16;
             }
-            (0x0f,_,0x03,0x03) =>{
+            (0x0f, _, 0x03, 0x03) => {
                 self.ram[self.i as usize] = self.v[x] / 100;
                 self.ram[self.i as usize + 1] = (self.v[x] % 100) / 10;
                 self.ram[self.i as usize + 2] = self.v[x] % 10;
             }
-            (0x0f,_,0x00,0x07) =>{
+            (0x0f, _, 0x00, 0x07) => {
                 self.delaytime = self.v[x];
             }
 
-            (0x0f,_,0x05,0x05) =>{
+            (0x0f, _, 0x05, 0x05) => {
                 for i in 0..x + 1 {
                     self.ram[(self.i + i as u16) as usize] = self.v[i];
                 }
             }
-            (0x0f,_,0x06,0x05) =>{
+            (0x0f, _, 0x06, 0x05) => {
                 for i in 0..x + 1 {
                     self.v[i] = self.ram[self.i as usize + i];
                 }
             }
-            (0x0f,_,0x00,0x0a )=> {
-               
-            }
-            (0x0f,_,0x01,0x0e) =>{
+            (0x0f, _, 0x00, 0x0a) => {}
+            (0x0f, _, 0x01, 0x0e) => {
                 self.i += self.v[x] as u16;
                 self.v[0x0f] = if self.i > 0x0F00 { 1 } else { 0 };
             }
-            (0x0f,_,0x01,0x05) =>{
-                self.delaytime = self.v[x];     
+            (0x0f, _, 0x01, 0x05) => {
+                self.delaytime = self.v[x];
             }
 
             _ => {

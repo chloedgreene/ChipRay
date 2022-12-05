@@ -1,11 +1,10 @@
-
 //TODO: Change this to a bit-mask or something and not 16 varubles, this is a temp solution
 
 use macroquad::input::KeyCode;
 use macroquad::prelude::is_key_down;
 
-#[derive(Debug,Copy,Clone)]
-pub struct input{
+#[derive(Debug, Copy, Clone)]
+pub struct input {
     pub num_1: bool,
     pub num_2: bool,
     pub num_3: bool,
@@ -24,10 +23,9 @@ pub struct input{
     pub num_f: bool,
 }
 
-impl input{
-
-    pub fn new() -> input{
-        input{
+impl input {
+    pub fn new() -> input {
+        input {
             num_1: false,
             num_2: false,
             num_3: false,
@@ -46,17 +44,22 @@ impl input{
             num_f: false,
         }
     }
-    pub fn update(&mut self){
+    pub fn if_key_press(&self) -> bool{
+
+
+        false
+    }
+    pub fn update(&mut self) {
         self.num_1 = is_key_down(KeyCode::Key1);
         self.num_2 = is_key_down(KeyCode::Key2);
-        self.num_3 = is_key_down(KeyCode::Key4);
+        self.num_3 = is_key_down(KeyCode::Key3);
         self.num_4 = is_key_down(KeyCode::Q);
         self.num_5 = is_key_down(KeyCode::W);
         self.num_6 = is_key_down(KeyCode::E);
         self.num_7 = is_key_down(KeyCode::A);
         self.num_8 = is_key_down(KeyCode::S);
         self.num_9 = is_key_down(KeyCode::D);
-        self.num_0 = is_key_down(KeyCode::Key0);
+        self.num_0 = is_key_down(KeyCode::X);
         self.num_a = is_key_down(KeyCode::Z);
         self.num_b = is_key_down(KeyCode::C);
         self.num_c = is_key_down(KeyCode::Key4);
@@ -64,7 +67,7 @@ impl input{
         self.num_e = is_key_down(KeyCode::F);
         self.num_f = is_key_down(KeyCode::V);
     }
-    pub fn reset(&mut self){
+    pub fn reset(&mut self) {
         self.num_1 = false;
         self.num_2 = false;
         self.num_3 = false;
@@ -82,5 +85,4 @@ impl input{
         self.num_e = false;
         self.num_f = false;
     }
-
 }
