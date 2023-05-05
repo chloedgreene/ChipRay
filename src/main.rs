@@ -85,8 +85,6 @@ async fn main() {
         }
         #[cfg(debug_assertions)]
         {
-            // TODO: make sure Gabe never touches this stupid code and make me do stupid changes that do nothing
-
             for y in 0..33 {
                 for x in 0..65 {
                     let x = (x as u32) * WIN_SCALE as u32 + 1;
